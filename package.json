@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "simple s3 proxy for squirrel update requests",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vivlabs/squirrel-filbert.git"
+  },
   "scripts": {
     "start": "NODE_ENV=production node index",
     "test": "echo \"Error: no test specified\" && exit 1"
