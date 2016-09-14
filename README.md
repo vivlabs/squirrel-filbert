@@ -1,7 +1,7 @@
 # Simple S3 Proxy for Squirrel Updates
 
 This nodejs package implements a
-[squirrel update service]((https://github.com/Squirrel/Squirrel.Mac#update-requests)
+[squirrel update service](https://github.com/Squirrel/Squirrel.Mac#update-requests)
 using Amazon S3 as a backend. Your builds and build metadata live in
 S3.  As update requests arrive, the server checks a well-known S3 bucket and key
 for a `latest.json` file, and uses this data to decide whether to send 204
