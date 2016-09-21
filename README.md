@@ -50,12 +50,11 @@ Filbert uses environment variables for its configuration.
 * `FILBERT_PORT`: The listener port, default 3000.
 * `FILBERT_BUILD_BUCKET`: The S3 bucket where builds live.
 * `FILBERT_BUILD_PREFIX`: The prefix under `FILBERT_BUILD_BUCKET`
-  where builds live. This can be empty. If non-empty, end it with `/`.
+  where builds live. This can be empty.
 * `FILBERT_CHANNEL_BUCKET`: The S3 bucket where channel information
   lives.
 * `FILBERT_CHANNEL_PREFIX`: The prefix under `FILBERT_CHANNEL_BUCKET`
-  where each channel's `latest.json` lives. This can be empty. If
-  non-empty, end it with `/`.
+  where each channel's `latest.json` lives. This can be empty.
 
 For AWS credentials configure a `$HOME/.aws/credentials`, AWS
 environment credentials, or IAM profile with GetObject access to the
