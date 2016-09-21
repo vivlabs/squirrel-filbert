@@ -4,6 +4,7 @@ const AWS = require('aws-sdk')
 const bodyParser = require('body-parser')
 const express = require('express')
 const http = require('http')
+const path = require('path')
 const semver = require('semver')
 
 const app = express()
@@ -30,11 +31,6 @@ if (!FILBERT_BUILD_BUCKET) {
   process.exit(-1)
 }
 
-if (FILBERT_BUILD_PREFIX && !FILBERT_BUILD_PREFIX.endsWith('/')) {
-  console.error('If set, FILBERT_BUILD_PREFIX must end with "/"')
-  process.exit(-1)
-}
-
 if (FILBERT_BUILD_PREFIX && FILBERT_BUILD_PREFIX.startsWith('/')) {
   console.error('If set, FILBERT_BUILD_PREFIX must not start with "/"')
   process.exit(-1)
@@ -42,11 +38,6 @@ if (FILBERT_BUILD_PREFIX && FILBERT_BUILD_PREFIX.startsWith('/')) {
 
 if (!FILBERT_CHANNEL_BUCKET) {
   console.error('Must set FILBERT_CHANNEL_BUCKET')
-  process.exit(-1)
-}
-
-if (FILBERT_CHANNEL_PREFIX && !FILBERT_CHANNEL_PREFIX.endsWith('/')) {
-  console.error('If set, FILBERT_CHANNEL_PREFIX must end with "/"')
   process.exit(-1)
 }
 
@@ -97,7 +88,7 @@ app.use('/status/:channel/:version', function (req, res, next) {
   // Expect .aws/credentials, environment credentials, or IAM profile.
   const s3 = new AWS.S3()
   const bucket = FILBERT_CHANNEL_BUCKET
-  const key = FILBERT_CHANNEL_PREFIX + channel + '/latest.json'
+  const key = path.join(FILBERT_CHANNEL_PREFIX, channel, 'latest.json')
 
   s3.getObject(
     {
@@ -130,16 +121,23 @@ app.use('/status/:channel/:version', function (req, res, next) {
         return res.sendStatus(204)
       }
 
-      const { build, name, notes, pub_date } = latest
+      const { build, notes, pub_date } = latest
       if (!build) {
         console.error('channel', channel, 'has bad data', latest)
         return res.status(500)
           .send('bad data in channel ' + channel + ': ' + data)
       }
       const url = FILBERT_SCHEME + '://' +
-            (req.get('host') || ('localhost' + FILBERT_PORT)) +
-            '/build/' + build
-      return res.send({name, notes, pub_date, url})
+            path.join(
+              (req.get('host') || ('localhost' + FILBERT_PORT)),
+              'build',
+              build)
+      return res.send({
+        name: latest.version,
+        notes,
+        pub_date,
+        url
+      })
     }
   )
 })
