@@ -59,5 +59,3 @@ Filbert uses environment variables for its configuration.
 For AWS credentials configure a `$HOME/.aws/credentials`, AWS
 environment credentials, or IAM profile with GetObject access to the
 appropriate S3 content.
-
-# The End
