@@ -1,5 +1,5 @@
 // index.js
-
+require('dotenv').config()
 const AWS = require('aws-sdk')
 const bodyParser = require('body-parser')
 const express = require('express')
@@ -49,6 +49,15 @@ if (FILBERT_CHANNEL_PREFIX && FILBERT_CHANNEL_PREFIX.startsWith('/')) {
 if (FILBERT_SCHEME !== 'http' && FILBERT_SCHEME !== 'https') {
   console.error('Bad value for FILBERT_SCHEME', FILBERT_SCHEME)
   process.exit(-1)
+}
+
+/**
+ * @param {string} build
+ * @param {string} host=localhost
+ * @returns {string}
+ */
+function buildUrl (build, host) {
+  return `${FILBERT_SCHEME}://${path.join((host || ('localhost' + FILBERT_PORT)), 'build', build)}`
 }
 
 app.use('/build/:buildId', function (req, res, next) {
@@ -108,12 +117,12 @@ app.use('/status/:channel/:version', function (req, res, next) {
       if (!latest || !latest.version) {
         console.error('channel', channel, 'has bad data', data)
         return res.status(500)
-          .send('bad data in channel ' + channel + ': ' + data)
+          .send(`bad data in channel ${channel}: ${data}`)
       }
       if (!semver.valid(latest.version)) {
         console.error('channel', channel, 'has bad version data', version)
         return res.status(500)
-          .send('bad version data in channel ' + channel + ': ' + version)
+          .send(`bad version data in channel ${channel}: ${version}`)
       }
 
       if (semver.gte(version, latest.version)) {
@@ -125,19 +134,56 @@ app.use('/status/:channel/:version', function (req, res, next) {
       if (!build) {
         console.error('channel', channel, 'has bad data', latest)
         return res.status(500)
-          .send('bad data in channel ' + channel + ': ' + data)
+          .send(`bad data in channel ${channel}: ${data}`)
       }
-      const url = FILBERT_SCHEME + '://' +
-            path.join(
-              (req.get('host') || ('localhost' + FILBERT_PORT)),
-              'build',
-              build)
+      const url = buildUrl(build, req.get('host'))
       return res.send({
         name: latest.version,
         notes,
         pub_date,
         url
       })
+    }
+  )
+})
+
+app.use('/latest/:channel', function (req, res, next) {
+  const { channel } = req.params
+
+  // Expect .aws/credentials, environment credentials, or IAM profile.
+  const s3 = new AWS.S3()
+  const bucket = FILBERT_CHANNEL_BUCKET
+  const key = path.join(FILBERT_CHANNEL_PREFIX, channel, 'latest.json')
+
+  s3.getObject(
+    {
+      Bucket: bucket,
+      Key: key
+    },
+    function (err, data) {
+      if (err) {
+        console.error(channel, bucket, key, err, err.stack)
+        if (err.statusCode) {
+          return res.status(err.statusCode).send(err.message)
+        }
+        return res.status(500).send(err)
+      }
+
+      const latest = JSON.parse(data.Body.toString())
+      if (!latest || !latest.version) {
+        console.error('channel', channel, 'has bad data', data)
+        return res.status(500)
+          .send(`bad data in channel ${channel}: ${data}`)
+      }
+
+      const { build } = latest
+      if (!build) {
+        console.error('channel', channel, 'has bad data', latest)
+        return res.status(500)
+          .send(`bad data in channel ${channel}: ${data}`)
+      }
+      const url = buildUrl(build, req.get('host'))
+      res.redirect(301, url)
     }
   )
 })

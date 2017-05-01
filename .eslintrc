@@ -1,0 +1,13 @@
+{
+  "parser": "babel-eslint",
+  "extends": [ "standard", "plugin:import/errors" ],
+  "settings": { },
+  "rules": {
+    "generator-star-spacing": 0,
+    "no-multi-spaces": 0,
+    "no-var": 2
+  },
+  "env": {
+    "node": true
+  }
+}
