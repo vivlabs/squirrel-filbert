@@ -11,7 +11,7 @@ the client should update.
 ## Installation
 
 Clone this repo or download a release, set environment variables
-according to "Configuration" below, then `yarn debug`.
+according to "Configuration" below, then `yarn dev`.
 
 To make the server useful, you'll need to upload a `latest.json` to
 your channel bucket as specified by `FILBERT_CHANNEL_BUCKET` and
