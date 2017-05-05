@@ -11,7 +11,7 @@ the client should update.
 ## Installation
 
 Clone this repo or download a release, set environment variables
-according to "Configuration" below, then `npm start`.
+according to "Configuration" below, then `yarn dev`.
 
 To make the server useful, you'll need to upload a `latest.json` to
 your channel bucket as specified by `FILBERT_CHANNEL_BUCKET` and
@@ -44,6 +44,10 @@ the `FILBERT_BUILD_BUCKET`, `FILBERT_BUILD_PREFIX`, and the `build`
 from that channel's `latest.json`.
 
 ## Configuration
+
+```shell
+cp .env.sample .env
+```
 
 Filbert uses environment variables for its configuration.
 
